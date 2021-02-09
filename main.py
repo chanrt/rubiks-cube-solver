@@ -1,6 +1,8 @@
 from interface import *
 import validate
+import config
 import operations
+import moves
 import pygame
 
 pygame.init()
@@ -47,8 +49,9 @@ def input_cube():
     if validate.valid_cube():
         cube_state.append("L")
         in_focus.append(blue)
-        operations.operation("LF", blue)
 
+        operations.lateral_flip(cube[yellow])
+        config.cube_solved()
         show_cube()
         convert_to_num()
     else:
@@ -60,7 +63,7 @@ def render_cube():
 
     while running:
         screen.fill(pygame.Color("black"))
-        clock.tick(10)
+        clock.tick(30)
 
         for event in pygame.event.get():
 
@@ -71,46 +74,13 @@ def render_cube():
                 if event.key == pygame.K_ESCAPE:
                     running = False
 
-        keys_pressed = pygame.key.get_pressed()
-        if keys_pressed[pygame.K_u]:
-            if keys_pressed[pygame.K_RSHIFT] or keys_pressed[pygame.K_LSHIFT]:
-                operations.operation("U'", white)
-            else:
-                operations.operation("U", white)
-
-        if keys_pressed[pygame.K_d]:
-            if keys_pressed[pygame.K_RSHIFT] or keys_pressed[pygame.K_LSHIFT]:
-                operations.operation("D'", white)
-            else:
-                operations.operation("D", white)
-
-        if keys_pressed[pygame.K_r]:
-            if keys_pressed[pygame.K_RSHIFT] or keys_pressed[pygame.K_LSHIFT]:
-                operations.operation("R'", white)
-            else:
-                operations.operation("R", white)
-
-        if keys_pressed[pygame.K_l]:
-            if keys_pressed[pygame.K_RSHIFT] or keys_pressed[pygame.K_LSHIFT]:
-                operations.operation("L'", white)
-            else:
-                operations.operation("L", white)
-
-        if keys_pressed[pygame.K_f]:
-            if keys_pressed[pygame.K_RSHIFT] or keys_pressed[pygame.K_LSHIFT]:
-                operations.operation("F'", white)
-            else:
-                operations.operation("F", white)
+                else:
+                    keys_pressed = pygame.key.get_pressed()
+                    moves.get_move(keys_pressed)
+                    moves.toggle_color(keys_pressed)
 
         for face_num in range(0, 6):
             face = cube[face_num]
-
-            if face[4] == orange or face[4] == blue or face[4] == red or face[4] == green:
-                y_offset = 205
-            elif face[4] == yellow:
-                y_offset = 0
-            else:
-                y_offset = 410
 
             if face[4] == yellow or face[4] == blue or face[4] == white:
                 x_offset = 205
@@ -120,6 +90,13 @@ def render_cube():
                 x_offset = 410
             else:
                 x_offset = 615
+
+            if face[4] == orange or face[4] == blue or face[4] == red or face[4] == green:
+                y_offset = 205
+            elif face[4] == yellow:
+                y_offset = 0
+            else:
+                y_offset = 410
 
             for color in range(0, 9):
                 if color == 0 or color == 3 or color == 6:
@@ -138,6 +115,9 @@ def render_cube():
 
                 pygame.draw.rect(screen, get_color(face[color]),
                                  [x_offset + x, y_offset + y, square_length, square_length])
+
+                if face_num == in_focus[0] and color == 4:
+                    pygame.draw.rect(screen, pygame.Color("black"), [x_offset + 82, y_offset + 82, 32, 32])
 
         pygame.display.flip()
 

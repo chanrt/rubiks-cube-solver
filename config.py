@@ -1,6 +1,12 @@
 from interface import *
 
 
+def cube_solved():
+    for face in cube:
+        for piece in range(0, 9):
+            face[piece] = face[4]
+
+
 def top_reference(front):
     if front == blue or front == green or front == orange or front == red:
         return yellow
